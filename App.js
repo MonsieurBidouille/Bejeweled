@@ -1,20 +1,30 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import Homepage from './screen/homepage';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Provider } from 'react-redux';
+import Store from './store/configStore';
+import Quizz from './screen/quizz';
+import Score from './screen/score';
+import Game from './screen/game';
+const stack = createNativeStackNavigator();
+
+
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <Provider store={Store}>
+    <NavigationContainer>
+      <stack.Navigator>
+        <stack.Screen name="game" component = {Game}/>
+        <stack.Screen name="Homepage" component = {Homepage}/>
+        <stack.Screen name="quizz" component = {Quizz}/>
+        <stack.Screen name="score" component = {Score}/>
+      </stack.Navigator>
+    </NavigationContainer>
+    </Provider>
+  )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+
+
+
