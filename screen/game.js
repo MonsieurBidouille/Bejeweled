@@ -20,9 +20,9 @@ export default class Game extends React.Component {
       grid: [],
       lastlin: null,
       lastcol: null,
-      score: 0,
+      score: 50,
       level:1,
-      progress: 0
+      progress: 0.50
 
     }
   }
@@ -43,7 +43,6 @@ export default class Game extends React.Component {
     }
     this.timescore();
     this.setState({ grid: grd });
-    this.setState({ score: 60 });
   }
 
 
@@ -78,7 +77,6 @@ export default class Game extends React.Component {
         arr.ngrid[l2][c2] = tval;
 
         if (this.checkend(arr.ngrid) == true) {
-          console.log("c'est faux");
           this.checklines(ngrid);
         } else {
           tval = ngrid[l1][c1];
@@ -87,7 +85,6 @@ export default class Game extends React.Component {
         }
 
         while (this.checkend(ngrid) == false) {
-          console.log(this.checkend("coucou"));
           this.checklines(ngrid);
         }
       }
@@ -128,7 +125,6 @@ export default class Game extends React.Component {
         }
       }
     }
-    console.log(indl);
     this.checkcol(ngrid, indl, points)
 
   }
@@ -167,7 +163,7 @@ export default class Game extends React.Component {
         }
       }
     }
-
+  
     this.setState({ score: (this.state.score + points) });
     if (points > 0) {
       this.transform(ngrid, indc, indl);
@@ -274,10 +270,11 @@ export default class Game extends React.Component {
   }
 
 
-  calcprog(n) {
+  calcprog() {
     let val = this.state.score / 100;
     this.setState({ progress: val });
   }
+
 
   timescore() {
     let multiplier = this.state.level * 1;
@@ -286,7 +283,7 @@ export default class Game extends React.Component {
       this.setState({level:this.state.level+1});
       multiplier++;
     } 
-    this.setState({ score: (this.state.score - (5*multiplier)) })
+    this.setState({ score: (this.state.score - (2*multiplier)) })
     this.calcprog();
 
     setTimeout(() => {
@@ -294,6 +291,9 @@ export default class Game extends React.Component {
     }, 3000);
   }
 
+  test(){
+    this.setState({ progress: this.state.progress + 0.10 });
+  }
 
 
 
@@ -334,7 +334,10 @@ export default class Game extends React.Component {
         ))}
         <View style={{ height: 20 }} />
         <ProgressBar style={styles.progress} progress={this.state.progress} color={MD3Colors.error50} indeterminate={false} />
+        <Button onPress={() => this.test()}>TEST</Button>
       </View>
+
+      
     )
   }
 }
