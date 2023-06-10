@@ -3,12 +3,10 @@ import {
   StyleSheet,
   View,
   Text,
-  table,
   Image,
-  TextInput,
+  ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import WhiteButton from '../components/white_button';
 import { Button } from 'react-native-paper';
 import { ProgressBar, MD3Colors } from 'react-native-paper';
 
@@ -21,8 +19,11 @@ export default class Game extends React.Component {
       lastlin: null,
       lastcol: null,
       score: 50,
+      totalscore:0,
       level:1,
-      progress: 0.50
+      progress: 0.50,
+      name:"",
+      pause:false
 
     }
   }
@@ -30,6 +31,7 @@ export default class Game extends React.Component {
 
 
   componentDidMount() {
+    this.setState({name:this.props.route.params.name}) ;
     var grd = [];
 
     for (let i = 0; i < 8; i++) {
@@ -163,8 +165,9 @@ export default class Game extends React.Component {
         }
       }
     }
-  
+
     this.setState({ score: (this.state.score + points) });
+    this.setState({ totalscore: (this.state.totalscore + points) });
     if (points > 0) {
       this.transform(ngrid, indc, indl);
     }
@@ -216,6 +219,9 @@ export default class Game extends React.Component {
 
 
   cpress(l, c) {
+    if(this.state.pause){
+      return;
+    }
     if (this.state.lastlin == null) {
       this.setState({ lastlin: l })
       this.setState({ lastcol: c })
@@ -277,14 +283,20 @@ export default class Game extends React.Component {
 
 
   timescore() {
+    if(this.state.pause == false){
     let multiplier = this.state.level * 1;
     if(this.state.score>=100){
       this.setState({score:50});
       this.setState({level:this.state.level+1});
       multiplier++;
+    }else if(this.state.score<=0){
+      this.gameover();
+      return;
     } 
-    this.setState({ score: (this.state.score - (2*multiplier)) })
+    let scorecalc = (this.state.score - (3+multiplier));
+    this.setState({ score:scorecalc})
     this.calcprog();
+  }
 
     setTimeout(() => {
       this.timescore();
@@ -292,30 +304,61 @@ export default class Game extends React.Component {
   }
 
   test(){
-    this.setState({ progress: this.state.progress + 0.10 });
+    this.gameover();
   }
 
+gameover(){
+  const { navigate } = this.props.navigation;
+  this.postscore();
+  navigate("Gameover",{name:this.state.name, score:this.state.totalscore})
+}
+
+postscore(){
+  const formdata = new FormData;
+  formdata.append("name",this.state.name);
+  formdata.append("score", this.state.totalscore);
+  console.log(formdata);
+  fetch('http://jdevalik.fr/api/bejscore.php',{
+    method: 'POST',
+    body:formdata,
+    headers:{
+      "Content-Type":"multipart/form-data"}
+  })
+}
+
+pause(){
+this.state.pause ? this.setState({pause:false}) : this.setState({pause:true});
+}
 
 
   render() {
+    
     const { navigate } = this.props.navigation;
+    
     return (
 
       <View style={styles.container}>
+        <ImageBackground source={require('../assets/gamebg.webp')} resizeMode="cover" style={styles.image}>
+          <View style={styles.container2}>
 
-        <Text>{this.state.score}</Text>
-        <Text>{this.state.level}</Text>
-
+            <View style={styles.info}>
+          <Text style={styles.level}>Niveau :{this.state.level}</Text>
+          <Text style={styles.score}>Score :{this.state.totalscore}</Text>
+          </View>
+<View style={styles.background}>
         {this.state.grid.map((ligne, Ligne) => (
           <View style={styles.row} key={Ligne}>
             {ligne.map((valeur, Col) => {
               var block;
+              if(this.state.pause == false){
               switch (valeur) {
                 case 1: block = <Image style={styles.blocks} source={require('../assets/block1.jpg')} />; break;
                 case 2: block = <Image style={styles.blocks} source={require('../assets/block2.png')} />; break;
                 case 3: block = <Image style={styles.blocks} source={require('../assets/block3.jpg')} />; break;
                 case 4: block = <Image style={styles.blocks} source={require('../assets/block4.jpg')} />; break;
                 case 5: block = <Image style={styles.blocks} source={require('../assets/block5.jpg')} />; break;
+              }}else{
+                block = <Image style={styles.blocks} source={require('../assets/pauseblock.png')} />;
               }
               return (
 
@@ -332,12 +375,13 @@ export default class Game extends React.Component {
             })}
           </View>
         ))}
+        </View>
         <View style={{ height: 20 }} />
         <ProgressBar style={styles.progress} progress={this.state.progress} color={MD3Colors.error50} indeterminate={false} />
-        <Button onPress={() => this.test()}>TEST</Button>
+        <Button style={styles.pause} onPress={() => this.pause()}>Pause</Button>
+        </View>
+        </ImageBackground>
       </View>
-
-      
     )
   }
 }
@@ -346,6 +390,40 @@ export default class Game extends React.Component {
 const styles = StyleSheet.create({
 
   container: {
+    flex: 1,
+  },
+
+  info:{
+    backgroundColor:"rgba(0, 0, 0, 0.5)",
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding:10,
+    marginBottom:10
+  },
+  level:{
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    marginBottom: 10,
+  },
+background:{
+  backgroundColor:"white"
+},
+
+  score:{
+    fontSize: 23,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    marginBottom: 10,
+  },
+
+  container2: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -379,8 +457,24 @@ const styles = StyleSheet.create({
   },
 
   progress: {
-    height: 10,
-    width: 200
+    height: 20,
+    width: 250,
+  },
+
+  image: {
+    flex: 1,
+    justifyContent: 'center',
+    fontSize:32
+  },
+
+  pause:{
+    margin:10,
+    backgroundColor: 'black',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom:10,
+    width:100
   }
 });
 

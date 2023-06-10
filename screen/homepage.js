@@ -9,6 +9,7 @@ import {
   TextInput,
   Alert,
   useEffect,
+  ImageBackground,
   setInterval,
 } from 'react-native';
 import {connect} from "react-redux";
@@ -25,30 +26,30 @@ class Homepage extends React.Component{
 }
 
 
-
-
-
 qstart(){
+  if(this.state.name != ""){
   const {navigate} = this.props.navigation;
-  const action2 = {type:"crnt_user",value:this.state.name};
-  this.props.dispatch(action2);
-  navigate('quizz');
+  navigate('game', {name: this.state.name});}
+  else{
+    Alert.alert("Erreur", "Veuillez entrer votre nom.")
+  }
 }
-
-
-
 
 
     render(){
         const {navigate} = this.props.navigation;
         return (
             <View style={styles.container}>
-                      <Text style={{color:'blue',fontSize: 22 ,}}>Le Quizz</Text>
+                  <ImageBackground source={require('../assets/Beerbackground.png')} resizeMode="cover" style={styles.image}>
+                    <View style={styles.container2}>
+                      <Text style={styles.title}>Beerjeweled</Text>
                       <View style={{height: 20}}/>
                       <TextInput style={styles.input} value={this.state.name} onChangeText={text=> this.setState({name:text})}  placeholder="Veuillez entrer votre nom" keyboardType="text"/>
                       <View style={{height: 20}}/>
-                      <WhiteButton val="Commencer le quizz" onPress={() => this.qstart()}></WhiteButton>
-                      
+                      <WhiteButton val="Commencer le jeu" onPress={() => this.qstart()}></WhiteButton>
+                      <WhiteButton val="Leaderboard" onPress={() => navigate("Leaderboard")}></WhiteButton>
+                      </View>
+                      </ImageBackground>
             </View>
         )
     }
@@ -64,17 +65,32 @@ const styles = StyleSheet.create({
 
     container:{
       flex: 1,
-      backgroundColor: 'lightGreen',
+    },
+
+    title:{
+      fontSize: 42,
+      fontWeight: 'bold',
+      color: '#071B68',
+      textAlign: 'center',
+      textTransform: 'uppercase',
+      letterSpacing: 2,
+      marginBottom: 10,
+    },
+
+    container2:{
+      flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
     },
 
-    tinyLogo: {
-      position:'absolute',
-      top:0,
-      left:0,
-      width: 50,
-      height: 50,
+    input:{
+      backgroundColor:'rgba(22, 223, 198, 0.3)' ,
+      padding:5
+    },
+
+    image: {
+      flex: 1,
+      justifyContent: 'center',
     },
   
   });
