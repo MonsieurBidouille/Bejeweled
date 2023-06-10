@@ -28,8 +28,6 @@ export default class Game extends React.Component {
     }
   }
 
-
-
   componentDidMount() {
     this.setState({name:this.props.route.params.name}) ;
     var grd = [];
@@ -47,21 +45,15 @@ export default class Game extends React.Component {
     this.setState({ grid: grd });
   }
 
-
-
   randomnum(max) {
     return Math.floor(Math.random() * max + 1);
   }
-
-
 
   isdiagonal(l1, c1, l2, c2) {
     const rowDiff = Math.abs(l1 - l2);
     const colDiff = Math.abs(c1 - c2);
     return rowDiff === colDiff;
   }
-
-
 
   cswitch(l1, c1, l2, c2) {
 
@@ -94,8 +86,6 @@ export default class Game extends React.Component {
     this.setState({ lastlin: null })
     this.setState({ lastcol: null })
   }
-
-
 
   checklines(g) {
     let ngrid = g;
@@ -166,7 +156,7 @@ export default class Game extends React.Component {
       }
     }
 
-    
+
     this.setState((prevState) => ({
       score: prevState.score + points,
       totalscore: prevState.totalscore + points,
@@ -321,7 +311,6 @@ postscore(){
   const formdata = new FormData;
   formdata.append("name",this.state.name);
   formdata.append("score", this.state.totalscore);
-  console.log(formdata);
   fetch('http://jdevalik.fr/api/bejscore.php',{
     method: 'POST',
     body:formdata,
@@ -333,7 +322,6 @@ postscore(){
 pause(){
 this.state.pause ? this.setState({pause:false}) : this.setState({pause:true});
 }
-
 
   render() {
     
