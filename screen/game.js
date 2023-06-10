@@ -165,9 +165,15 @@ export default class Game extends React.Component {
         }
       }
     }
-
+    /*
     this.setState({ score: (this.state.score + points) });
     this.setState({ totalscore: (this.state.totalscore + points) });
+    */
+    this.setState((prevState) => ({
+      score: prevState.score + points,
+      totalscore: prevState.totalscore + points,
+    }));
+    
     if (points > 0) {
       this.transform(ngrid, indc, indl);
     }
